@@ -1,0 +1,102 @@
+{
+  "project": "timnas-final-2026",
+  "title": "7 Menit yang Mengubah Nasib Garuda",
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "font": "assets/fonts/Roboto-Black.ttf",
+  "font_sub": "assets/fonts/Roboto-Bold.ttf",
+  "tail_pad": 0.45,
+  "scenes": [
+    {
+      "id": "s1",
+      "image": "assets/images/s1_hook.png",
+      "audio": "audio/s1.mp3",
+      "kenburns": "in",
+      "accent": "FF3B30",
+      "kicker": "FIFA ASEAN CUP 2026",
+      "lines": ["7 MENIT", "YANG MENGUBAH", "SEGALANYA"],
+      "pos": "center"
+    },
+    {
+      "id": "s2",
+      "image": "assets/images/s2_stadion.png",
+      "audio": "audio/s2.mp3",
+      "kenburns": "out",
+      "accent": "FFFFFF",
+      "kicker": "KAMIS, 1 OKTOBER \u00b7 SUGBK",
+      "lines": ["INDONESIA 7-2", "TAPI MALAYSIA 6-0"],
+      "pos": "bottom"
+    },
+    {
+      "id": "s3",
+      "image": "assets/images/s3_tegang.png",
+      "audio": "audio/s3.mp3",
+      "kenburns": "in",
+      "accent": "FFCC00",
+      "kicker": "POIN SAMA \u00b7 SELISIH GOL SAMA",
+      "lines": ["GARUDA KALAH", "PRODUKTIVITAS GOL"],
+      "pos": "bottom"
+    },
+    {
+      "id": "s4",
+      "image": "assets/images/s4_papan.png",
+      "audio": "audio/s4.mp3",
+      "kenburns": "in",
+      "accent": "FFCC00",
+      "kicker": "TAMBAHAN WAKTU",
+      "lines": ["+2 MENIT", "JADI +7 MENIT"],
+      "pos": "center"
+    },
+    {
+      "id": "s5",
+      "image": "assets/images/s5_sundulan.png",
+      "audio": "audio/s5.mp3",
+      "kenburns": "out",
+      "accent": "FF3B30",
+      "kicker": "90+6'",
+      "lines": ["KEVIN DIKS", "GOOOL!"],
+      "pos": "bottom"
+    },
+    {
+      "id": "s6",
+      "image": "assets/images/s6_striker.png",
+      "audio": "audio/s6.mp3",
+      "kenburns": "in",
+      "accent": "FF3B30",
+      "kicker": "1 MENIT KEMUDIAN",
+      "lines": ["MITCHELL BAKER", "GOL KE-5!"],
+      "pos": "bottom"
+    },
+    {
+      "id": "s7",
+      "image": "assets/images/s7_selebrasi.png",
+      "audio": "audio/s7.mp3",
+      "kenburns": "out",
+      "accent": "FFFFFF",
+      "kicker": "3 GOL DALAM 37 DETIK",
+      "lines": ["9-2", "JUARA GRUP A"],
+      "pos": "center"
+    },
+    {
+      "id": "s8",
+      "image": "assets/images/s8_trofi.png",
+      "audio": "audio/s8.mp3",
+      "kenburns": "in",
+      "accent": "FFCC00",
+      "kicker": "SENIN, 5 OKTOBER \u00b7 20.00 WIB",
+      "lines": ["INDONESIA", "VS THAILAND"],
+      "pos": "bottom"
+    },
+    {
+      "id": "s9",
+      "image": "assets/images/s9_suporter.png",
+      "audio": "audio/s9.mp3",
+      "kenburns": "in",
+      "accent": "FF3B30",
+      "kicker": "6 KALI RUNNER-UP, 0 TROFI",
+      "lines": ["GELAR PERTAMA?", "KOMEN DI BAWAH"],
+      "pos": "center"
+    }
+  ]
+}

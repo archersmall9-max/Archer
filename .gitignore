@@ -1,0 +1,6 @@
+# hasil render antara
+projects/*/build/
+*.tmp
+__pycache__/
+.venv/
+raw/*.part
