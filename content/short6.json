@@ -1,0 +1,166 @@
+{
+  "slug": "short6-onoda-29-tahun-60fps",
+  "format": "9:16",
+  "fps": 60,
+  "assets_dir": "assets/short5",
+  "channel": "sticktomyplan",
+  "impacts": [
+    0.08
+  ],
+  "scenes": [
+    {
+      "image": "o20.jpg",
+      "vo": "z00.mp3",
+      "move": "punch"
+    },
+    {
+      "image": "o21.jpg",
+      "vo": null,
+      "move": "left",
+      "dur": 1.0
+    },
+    {
+      "image": "o01.jpg",
+      "vo": "z01.mp3",
+      "move": "in"
+    },
+    {
+      "image": "o10.jpg",
+      "vo": null,
+      "move": "in",
+      "dur": 0.9
+    },
+    {
+      "image": "o02.jpg",
+      "vo": "z02.mp3",
+      "move": "out"
+    },
+    {
+      "image": "o03.jpg",
+      "vo": "z03.mp3",
+      "move": "punch"
+    },
+    {
+      "image": "o11.jpg",
+      "vo": null,
+      "move": "out",
+      "dur": 0.9
+    },
+    {
+      "image": "o04.jpg",
+      "vo": "z04.mp3",
+      "move": "up"
+    },
+    {
+      "image": "o22.jpg",
+      "vo": null,
+      "move": "in",
+      "dur": 0.9
+    },
+    {
+      "image": "o05.jpg",
+      "vo": "z05.mp3",
+      "move": "punch"
+    },
+    {
+      "image": "o06.jpg",
+      "vo": "z07.mp3",
+      "move": "in"
+    },
+    {
+      "image": "o24.jpg",
+      "vo": null,
+      "move": "in",
+      "dur": 0.9
+    },
+    {
+      "image": "o14.jpg",
+      "vo": null,
+      "move": "out",
+      "dur": 0.9
+    },
+    {
+      "image": "o12.jpg",
+      "vo": null,
+      "move": "left",
+      "dur": 1.0
+    },
+    {
+      "image": "o23.jpg",
+      "vo": null,
+      "move": "in",
+      "dur": 1.0
+    },
+    {
+      "image": "o13.jpg",
+      "vo": null,
+      "move": "out",
+      "dur": 1.0
+    },
+    {
+      "image": "o25.jpg",
+      "vo": "z08.mp3",
+      "move": "out"
+    },
+    {
+      "image": "o07.jpg",
+      "vo": null,
+      "move": "in",
+      "dur": 1.0
+    },
+    {
+      "image": "o08.jpg",
+      "vo": "z09.mp3",
+      "move": "in"
+    },
+    {
+      "image": "o09.jpg",
+      "vo": "z10.mp3",
+      "move": "out"
+    },
+    {
+      "image": "o26.jpg",
+      "vo": "z11.mp3",
+      "move": "punch"
+    },
+    {
+      "image": "o15.jpg",
+      "vo": "z12.mp3",
+      "move": "in"
+    },
+    {
+      "image": "o16.jpg",
+      "vo": "z13.mp3",
+      "move": "in"
+    },
+    {
+      "image": "o27.jpg",
+      "vo": null,
+      "move": "punch",
+      "dur": 1.0
+    },
+    {
+      "image": "o17.jpg",
+      "vo": null,
+      "move": "out",
+      "dur": 1.0
+    },
+    {
+      "image": "o18.jpg",
+      "vo": null,
+      "move": "in",
+      "dur": 1.0
+    },
+    {
+      "image": "o28.jpg",
+      "vo": "z14.mp3",
+      "move": "out"
+    },
+    {
+      "image": "o29.jpg",
+      "vo": null,
+      "move": "in",
+      "dur": 2.2
+    }
+  ]
+}

@@ -64,14 +64,14 @@ def build(cfg_path):
     work = os.path.join(ROOT, "build", "tmp_" + cfg["slug"])
     os.makedirs(work, exist_ok=True)
     FPS, XF = int(cfg.get("fps", 30)), 0.5
-    HEAD, TAIL = 0.18, 0.38
+    HEAD, TAIL = 0.18, 0.30
 
     scenes = cfg["scenes"]
     clips, durs = [], []
     for i, sc in enumerate(scenes):
         img = os.path.join(adir, sc["image"])
         vo = os.path.join(adir, sc["vo"]) if sc.get("vo") else None
-        base = dur(vo) + HEAD + TAIL if vo else sc.get("dur", 2.0)
+        base = dur(vo) / 1.04 + HEAD + TAIL if vo else sc.get("dur", 2.0)
         d = base + sc.get("pad", 0) + (XF if i < len(scenes) - 1 else 0)
         n = int(d * FPS)
         out = os.path.join(work, f"c{i:02d}.mp4")
@@ -142,7 +142,7 @@ def build(cfg_path):
         if sc.get("vo"):
             start = t + HEAD
             ai += ["-i", os.path.join(adir, sc["vo"])]
-            af.append(f"[{k}:a]apad=pad_dur=0.4,adelay={int(start*1000)}|{int(start*1000)},"
+            af.append(f"[{k}:a]atempo=1.04,apad=pad_dur=0.4,adelay={int(start*1000)}|{int(start*1000)},"
                       f"aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo[a{k}]")
             mix.append(f"[a{k}]")
             k += 1
