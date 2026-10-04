@@ -5,15 +5,15 @@
   "channel": "sticktomyplan",
   "impacts": [0.1],
   "scenes": [
-    {"image": "p00.png", "vo": "w00.mp3", "beat": "INTRO brand - istana saat fajar", "move": "punch", "brand": true, "pad": 0.5},
-    {"image": "p01.png", "vo": "w01.mp3", "beat": "HOOK 06.00 bangun jadi presiden", "move": "in", "trans": "fadewhite"},
-    {"image": "p02.png", "vo": "w02.mp3", "beat": "07.00 tumpukan map merah", "move": "up", "trans": "smoothleft"},
-    {"image": "p03.png", "vo": "w03.mp3", "beat": "Harga beras naik, pasar marah", "move": "punch", "trans": "circleopen"},
-    {"image": "p04.png", "vo": "w04.mp3", "beat": "Rapat menteri ribut", "move": "left", "trans": "wiperight"},
-    {"image": "p05.png", "vo": "w05.mp3", "beat": "Dilema anggaran: subsidi vs infrastruktur", "move": "in", "trans": "slideup"},
-    {"image": "p06.png", "vo": "w06.mp3", "beat": "Demo hujan di depan istana", "move": "out", "trans": "dissolve"},
-    {"image": "p07.png", "vo": "w07.mp3", "beat": "Tekanan diplomatik via telepon merah", "move": "punch", "trans": "smoothright"},
-    {"image": "p08.png", "vo": "w08.mp3", "beat": "Tengah malam, satu tanda tangan", "move": "in", "trans": "radial"},
-    {"image": "p09.png", "vo": "w09.mp3", "beat": "Konsekuensi: harga turun, proyek tertunda", "move": "out", "trans": "fadeblack", "brand": true, "pad": 0.4}
+    {"image": "p00.jpg", "vo": "w00.mp3", "beat": "INTRO brand - istana saat fajar", "move": "punch", "brand": true, "pad": 0.5},
+    {"image": "p01.jpg", "vo": "w01.mp3", "beat": "HOOK 06.00 bangun jadi presiden", "move": "in", "trans": "fadewhite"},
+    {"image": "p02.jpg", "vo": "w02.mp3", "beat": "07.00 tumpukan map merah", "move": "up", "trans": "smoothleft"},
+    {"image": "p03.jpg", "vo": "w03.mp3", "beat": "Harga beras naik, pasar marah", "move": "punch", "trans": "circleopen"},
+    {"image": "p04.jpg", "vo": "w04.mp3", "beat": "Rapat menteri ribut", "move": "left", "trans": "wiperight"},
+    {"image": "p05.jpg", "vo": "w05.mp3", "beat": "Dilema anggaran: subsidi vs infrastruktur", "move": "in", "trans": "slideup"},
+    {"image": "p06.jpg", "vo": "w06.mp3", "beat": "Demo hujan di depan istana", "move": "out", "trans": "dissolve"},
+    {"image": "p07.jpg", "vo": "w07.mp3", "beat": "Tekanan diplomatik via telepon merah", "move": "punch", "trans": "smoothright"},
+    {"image": "p08.jpg", "vo": "w08.mp3", "beat": "Tengah malam, satu tanda tangan", "move": "in", "trans": "radial"},
+    {"image": "p09.jpg", "vo": "w09.mp3", "beat": "Konsekuensi: harga turun, proyek tertunda", "move": "out", "trans": "fadeblack", "brand": true, "pad": 0.4}
   ]
 }

@@ -5,16 +5,16 @@
   "channel": "sticktomyplan",
   "impacts": [0.1],
   "scenes": [
-    {"image": "s00_logo.png", "vo": "v00.mp3", "beat": "INTRO brand sting", "move": "punch", "brand": true, "pad": 0.6},
-    {"image": "s01.png", "vo": "v01.mp3", "beat": "HOOK: 86.000 vs 50.000, yang kalah malah yang banyak", "move": "in", "trans": "fadewhite"},
-    {"image": "s02.png", "vo": "v02.mp3", "beat": "Setting: Cannae 216 SM", "move": "out", "trans": "smoothleft"},
-    {"image": "s03.png", "vo": "v03.mp3", "beat": "Hannibal menggambar lengkungan di peta", "move": "in", "trans": "circleopen"},
-    {"image": "s04.png", "vo": "v04.mp3", "beat": "Formasi bulan sabit, elit disembunyikan di sayap", "move": "up", "trans": "wiperight"},
-    {"image": "s05.png", "vo": "v05.mp3", "beat": "Roma menyerbu tengah", "move": "punch", "trans": "slideup"},
-    {"image": "s06.png", "vo": "v06.mp3", "beat": "Tengah mundur terkendali, kantong terbentuk", "move": "out", "trans": "dissolve"},
-    {"image": "s07.png", "vo": "v07.mp3", "beat": "Kavaleri menghantam dari belakang", "move": "punch", "trans": "smoothright"},
-    {"image": "s08.png", "vo": "v08.mp3", "beat": "Pengepungan total", "move": "in", "trans": "radial"},
-    {"image": "s09.png", "vo": "v09.mp3", "beat": "Pelajaran: pakai kekuatan lawan", "move": "out", "trans": "fadeblack"},
-    {"image": "s10.png", "vo": "v10.mp3", "beat": "OUTRO brand + CTA", "move": "in", "trans": "circlecrop", "brand": true, "pad": 0.5}
+    {"image": "s00_logo.jpg", "vo": "v00.mp3", "beat": "INTRO brand sting", "move": "punch", "brand": true, "pad": 0.6},
+    {"image": "s01.jpg", "vo": "v01.mp3", "beat": "HOOK: 86.000 vs 50.000, yang kalah malah yang banyak", "move": "in", "trans": "fadewhite"},
+    {"image": "s02.jpg", "vo": "v02.mp3", "beat": "Setting: Cannae 216 SM", "move": "out", "trans": "smoothleft"},
+    {"image": "s03.jpg", "vo": "v03.mp3", "beat": "Hannibal menggambar lengkungan di peta", "move": "in", "trans": "circleopen"},
+    {"image": "s04.jpg", "vo": "v04.mp3", "beat": "Formasi bulan sabit, elit disembunyikan di sayap", "move": "up", "trans": "wiperight"},
+    {"image": "s05.jpg", "vo": "v05.mp3", "beat": "Roma menyerbu tengah", "move": "punch", "trans": "slideup"},
+    {"image": "s06.jpg", "vo": "v06.mp3", "beat": "Tengah mundur terkendali, kantong terbentuk", "move": "out", "trans": "dissolve"},
+    {"image": "s07.jpg", "vo": "v07.mp3", "beat": "Kavaleri menghantam dari belakang", "move": "punch", "trans": "smoothright"},
+    {"image": "s08.jpg", "vo": "v08.mp3", "beat": "Pengepungan total", "move": "in", "trans": "radial"},
+    {"image": "s09.jpg", "vo": "v09.mp3", "beat": "Pelajaran: pakai kekuatan lawan", "move": "out", "trans": "fadeblack"},
+    {"image": "s10.jpg", "vo": "v10.mp3", "beat": "OUTRO brand + CTA", "move": "in", "trans": "circlecrop", "brand": true, "pad": 0.5}
   ]
 }
