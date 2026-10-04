@@ -1,0 +1,146 @@
+{
+  "slug": "short5-onoda-29-tahun",
+  "format": "9:16",
+  "fps": 60,
+  "assets_dir": "assets/short5",
+  "channel": "sticktomyplan",
+  "impacts": [
+    0.1
+  ],
+  "scenes": [
+    {
+      "image": "o00.png",
+      "vo": "y00.mp3",
+      "brand": true,
+      "move": "punch",
+      "pad": 0.4
+    },
+    {
+      "image": "o01.png",
+      "vo": "y01.mp3",
+      "move": "in",
+      "trans": "fadewhite"
+    },
+    {
+      "image": "o10.png",
+      "vo": null,
+      "move": "left",
+      "trans": "smoothleft",
+      "dur": 2.0
+    },
+    {
+      "image": "o02.png",
+      "vo": "y02.mp3",
+      "move": "in",
+      "trans": "circleopen"
+    },
+    {
+      "image": "o03.png",
+      "vo": "y03.mp3",
+      "move": "punch",
+      "trans": "slideup"
+    },
+    {
+      "image": "o11.png",
+      "vo": null,
+      "move": "out",
+      "trans": "dissolve",
+      "dur": 2.0
+    },
+    {
+      "image": "o04.png",
+      "vo": "y04.mp3",
+      "move": "up",
+      "trans": "radial"
+    },
+    {
+      "image": "o05.png",
+      "vo": "y05.mp3",
+      "move": "punch",
+      "trans": "smoothright"
+    },
+    {
+      "image": "o06.png",
+      "vo": "y06.mp3",
+      "move": "in",
+      "trans": "wiperight"
+    },
+    {
+      "image": "o14.png",
+      "vo": null,
+      "move": "out",
+      "trans": "fadeblack",
+      "dur": 2.0
+    },
+    {
+      "image": "o12.png",
+      "vo": null,
+      "move": "left",
+      "trans": "wipeleft",
+      "dur": 2.2
+    },
+    {
+      "image": "o13.png",
+      "vo": null,
+      "move": "in",
+      "trans": "dissolve",
+      "dur": 2.2
+    },
+    {
+      "image": "o07.png",
+      "vo": "y07.mp3",
+      "move": "out",
+      "trans": "fadeblack"
+    },
+    {
+      "image": "o08.png",
+      "vo": "y08.mp3",
+      "move": "in",
+      "trans": "smoothleft"
+    },
+    {
+      "image": "o09.png",
+      "vo": "y09.mp3",
+      "move": "out",
+      "trans": "circleopen"
+    },
+    {
+      "image": "o09.png",
+      "vo": "y10.mp3",
+      "move": "punch",
+      "trans": "fadewhite"
+    },
+    {
+      "image": "o15.png",
+      "vo": "y11.mp3",
+      "move": "in",
+      "trans": "smoothright"
+    },
+    {
+      "image": "o16.png",
+      "vo": "y12.mp3",
+      "move": "in",
+      "trans": "radial"
+    },
+    {
+      "image": "o17.png",
+      "vo": "y13.mp3",
+      "move": "out",
+      "trans": "wiperight"
+    },
+    {
+      "image": "o18.png",
+      "vo": "y14.mp3",
+      "move": "in",
+      "trans": "slideup"
+    },
+    {
+      "image": "o19.png",
+      "vo": null,
+      "move": "out",
+      "trans": "fadeblack",
+      "dur": 3.2,
+      "brand": true
+    }
+  ]
+}

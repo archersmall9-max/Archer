@@ -1,0 +1,14 @@
+{
+  "slug": "short-4-trik-psikologi-gelap",
+  "format": "9:16",
+  "scenes": [
+    {"image": "s1.png", "vo": "vo1.mp3", "beat": "INTRO / HOOK - stickman dikepung tangan bayangan"},
+    {"image": "s2.png", "vo": "vo2.mp3", "beat": "Silent treatment"},
+    {"image": "s3.png", "vo": "vo3.mp3", "beat": "Guilt tripping"},
+    {"image": "s4.png", "vo": "vo4.mp3", "beat": "Anchoring / jebakan harga"},
+    {"image": "s5.png", "vo": "vo5.mp3", "beat": "Push-pull panas dingin"},
+    {"image": "s6.png", "vo": "vo6.mp3", "beat": "Solusi 1: beri jeda 24 jam"},
+    {"image": "s7.png", "vo": "vo7.mp3", "beat": "Solusi 2: pisahkan fakta & perasaan"},
+    {"image": "s8.png", "vo": "vo8.mp3", "beat": "OUTRO - stickman menang + CTA komentar"}
+  ]
+}

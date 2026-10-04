@@ -1,0 +1,4 @@
+*.png binary
+*.mp3 binary
+*.mp4 binary
+*.mp4 -diff -merge

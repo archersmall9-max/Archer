@@ -1,0 +1,4 @@
+build/tmp_*/
+__pycache__/
+# render mentah tidak ikut repo; hanya versi final terkompresi yang di-commit dengan `git add -f`
+output/*.mp4
