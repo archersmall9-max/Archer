@@ -29,12 +29,13 @@ import numpy as np
 
 import film
 import gfx
+import shadow
 import shots as S
 from engine3d import Renderer
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 W, H = 1080, 1920
-SS = 1.5             # supersampling factor (>=1.5 removes polygonal edge shimmer)
+SS = 1.6             # supersampling factor (>=1.5 removes polygonal edge shimmer)
 CRF = 17
 PRESET = "faster"
 
@@ -61,6 +62,10 @@ def main():
     ap.add_argument("--f0", type=int, default=-1, help="first frame index (inclusive)")
     ap.add_argument("--f1", type=int, default=-1, help="last frame index (exclusive)")
     ap.add_argument("--ss", type=float, default=SS, help="super-sampling factor")
+    ap.add_argument("--shadow", type=float, default=0.72,
+                    help="baked sun-shadow strength for the static world (0=off)")
+    ap.add_argument("--trail", type=float, default=0.35,
+                    help="shutter trail: blend with the previous frame (0=off)")
     ap.add_argument("--ao", type=float, default=0.0, help="contact occlusion strength")
     ap.add_argument("--crf", type=int, default=CRF)
     ap.add_argument("--preset", default=PRESET)
@@ -112,6 +117,28 @@ def main():
     for name, d in need.items():
         cache[name] = by_name[name](d + 0.5)
 
+    # ---- bake sun shadows (sun is constant inside a shot) -------------------
+    if args.shadow > 0:
+        t_b = time.time()
+        for name, sh in cache.items():
+            try:
+                _, _, lk_b = sh.frame(0.42 * sh.dur)
+            except Exception:
+                continue
+            statics = []
+            w = getattr(sh, "world", None)
+            if w is not None:
+                statics += list(w.static)
+            for attr in ("meshes", "ribbons", "grains"):
+                if attr == "grains":
+                    continue
+                extra = getattr(sh, attr, None)
+                if isinstance(extra, list):
+                    statics += [m for m in extra if m is not None]
+            if statics:
+                shadow.bake(statics, lk_b.light.sun.d, strength=args.shadow)
+        print(f"sun shadows baked in {time.time() - t_b:.1f}s", flush=True)
+
     r = Renderer(W, H, ssaa=args.ss)
     segs = tl.segments
     starts = [s.start for s in segs]
@@ -138,6 +165,8 @@ def main():
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
 
     t0 = time.time()
+    trail = max(0.0, min(0.9, args.trail))
+    prev = None
     try:
         for k in range(n_frames):
             gi = f0 + k
@@ -152,6 +181,19 @@ def main():
                 w_ = smoothstep((t - (seg.end - film.DISSOLVE)) / film.DISSOLVE)
                 img2, _ = raw_frame(nxt.name, t - (seg.end - film.DISSOLVE))
                 img = cv2.addWeighted(img, 1.0 - w_, img2, w_, 0.0)
+            # shutter trail: a 180-degree-ish shutter, so fast moves read as motion
+            # instead of a sequence of stills (and it calms any residual stepping)
+            if trail > 0:
+                if prev is None:
+                    if f0 > 0:                         # prime a part with its real
+                        tp = (gi - 1) / args.fps        # predecessor frame
+                        ip = int(np.searchsorted(starts, tp, side="right") - 1)
+                        ip = max(0, min(last, ip))
+                        prev, _ = raw_frame(segs[ip].name, tp - segs[ip].start)
+                    else:
+                        prev = img
+                img = cv2.addWeighted(prev, trail, img, 1.0 - trail, 0.0)
+                prev = img
             q = gfx.grade(img, seed=gi, **lk.post)
             proc.stdin.write(np.ascontiguousarray(q).tobytes())
             if k % 120 == 0:

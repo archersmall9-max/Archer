@@ -60,7 +60,7 @@ def mix_color(c1, c2, t):
 class Mesh:
     """World-space triangle/quad soup with per-face albedo."""
 
-    __slots__ = ("v", "f", "c", "glow", "alpha")
+    __slots__ = ("v", "f", "c", "glow", "alpha", "sunvis")
 
     def __init__(self, verts, faces, color, glow=0.0, alpha=1.0):
         self.v = np.asarray(verts, dtype=np.float64)
@@ -75,6 +75,7 @@ class Mesh:
         self.c = col
         self.glow = np.broadcast_to(np.asarray(glow, float), (n,)).copy()
         self.alpha = np.broadcast_to(np.asarray(alpha, float), (n,)).copy()
+        self.sunvis = np.ones(n, dtype=np.float32)      # 0 = in shadow, 1 = full sun
 
     def transform(self, M, offset=(0, 0, 0)):
         self.v = self.v @ np.asarray(M, float).T + np.asarray(offset, float)
@@ -271,7 +272,8 @@ class Sun:
 class Lighting:
     def __init__(self, sun, ambient=(0.42, 0.46, 0.55), sky=(0.55, 0.68, 0.85),
                  ground=(0.30, 0.28, 0.24), fog=(0.78, 0.84, 0.92), fog_density=0.0055,
-                 fog_height=0.02, exposure=1.0, wrap=0.35, ambient_boost=1.0):
+                 fog_height=0.02, exposure=1.0, wrap=0.35, ambient_boost=1.0,
+                 spec=0.10, shine=24.0, rim=0.06):
         self.sun = sun
         self.amb = np.asarray(ambient, float) * ambient_boost
         self.sky = np.asarray(sky, float)
@@ -281,6 +283,9 @@ class Lighting:
         self.fog_height = fog_height
         self.exposure = exposure
         self.wrap = wrap
+        self.spec = spec
+        self.shine = shine
+        self.rim = rim
 
 
 # ----------------------------------------------------------------------------- renderer
@@ -358,6 +363,8 @@ class Renderer:
         C = np.concatenate([m.c for m in meshes])
         G = np.concatenate([m.glow for m in meshes])
         A = np.concatenate([m.alpha for m in meshes])
+        SV = np.concatenate([getattr(m, "sunvis", np.ones(len(m.f), np.float32))
+                             for m in meshes]).astype(np.float64)
 
         valid = (F >= 0).sum(1) >= 3
         ok3 = (F[:, :3] >= 0).all(1)
@@ -386,12 +393,24 @@ class Renderer:
         # shading -------------------------------------------------------------
         nw = nrm
         ndl = nw @ light.sun.d
-        diff = np.clip((ndl + light.wrap) / (1 + light.wrap), 0, 1)
+        diff = np.clip((ndl + light.wrap) / (1 + light.wrap), 0, 1) * SV
         hemi = 0.5 + 0.5 * nw[:, 1]
         amb = light.amb[None, :] * (0.45 + 0.55 * hemi)[:, None]
         amb = amb + light.sky[None, :] * (0.18 * np.clip(hemi, 0, 1))[:, None]
         amb = amb + light.ground[None, :] * (0.22 * np.clip(1 - hemi, 0, 1))[:, None]
         shade = C * (amb + (light.sun.c * light.sun.s)[None, :] * diff[:, None])
+
+        # --- specular + rim: a little surface response goes a long way ---------
+        if light.spec > 0 or light.rim > 0:
+            vd = normalize(cam.eye[None, :] - Q[:, 0])
+            hv = normalize(vd + light.sun.d[None, :])
+            spec = np.clip(np.einsum("ij,ij->i", nw, hv), 0.0, 1.0) ** light.shine
+            spec = spec * diff * light.spec
+            shade = shade + (light.sun.c * light.sun.s)[None, :] * spec[:, None]
+            rim = np.clip(1.0 - np.abs(np.einsum("ij,ij->i", nw, vd)), 0.0, 1.0) ** 3.0
+            shade = shade + light.sky[None, :] * (
+                rim * light.rim * (0.30 + 0.70 * diff))[:, None]
+
         shade = 1.0 - np.exp(-shade * light.exposure * 1.35)   # filmic-ish tonemap
         glow = G[:, None]
         shade = shade * (1 - glow) + C * glow

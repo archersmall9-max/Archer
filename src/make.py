@@ -51,7 +51,8 @@ def tail(path, n=6):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--parts", type=int, default=os.cpu_count() or 2)
-    ap.add_argument("--ss", type=float, default=1.5, help="supersampling factor")
+    ap.add_argument("--ss", type=float, default=1.6, help="supersampling factor")
+    ap.add_argument("--trail", type=float, default=0.35, help="shutter trail blend")
     ap.add_argument("--crf", type=int, default=17)
     ap.add_argument("--preset", default="faster")
     ap.add_argument("--fps", type=int, default=film.FPS)
@@ -87,7 +88,7 @@ def main():
         t = time.time()
         rc, _ = run([sys.executable, "render.py", "--f0", str(a), "--f1", str(b),
                      "--out", out, "--no-final", "--no-audio", "--no-subs",
-                     "--ss", str(args.ss), "--crf", str(args.crf),
+                     "--ss", str(args.ss), "--trail", str(args.trail), "--crf", str(args.crf),
                      "--preset", args.preset, "--fps", str(args.fps)], log)
         print(f"[make] {pid} frames {a}-{b} {'done' if rc == 0 else 'FAILED'} "
               f"in {time.time() - t:.0f}s" + ("" if rc == 0 else "\n" + tail(log)), flush=True)
@@ -100,24 +101,32 @@ def main():
             parts.append(out)
     print(f"[make] all parts rendered in {(time.time() - t_all) / 60:.1f} min", flush=True)
 
-    # ---- concat + caption burn + mux (one encode pass) ----------------------
+    # ---- concat, caption burn, mux ----------------------------------------
+    # three small steps instead of one giant one: the single pass used enough peak
+    # memory to get OOM-killed on a 4 GB box at 90 fps
     lst = os.path.join(OUT, "parts.txt")
     with open(lst, "w") as fh:
         for p in parts:
             fh.write(f"file '{p}'\n")
+    joined = os.path.join(OUT, "joined.mp4")
+    subprocess.run([ffmpeg, "-y", "-v", "error", "-f", "concat", "-safe", "0",
+                    "-i", lst, "-c", "copy", joined], check=True)
 
     subs = film.write_ass(tl, os.path.join(OUT, "subs.ass"))
     shutil.copyfile(subs, os.path.join(OUT, "captions.subs.ass"))
-    os.makedirs(VIDEO, exist_ok=True)
-    master = os.path.join(OUT, args.name + ".mp4")
-    subprocess.run([ffmpeg, "-y", "-v", "error",
-                    "-f", "concat", "-safe", "0", "-i", lst,
-                    "-i", os.path.join(OUT, "mix.wav"),
+    burnt = os.path.join(OUT, "burnt.mp4")
+    subprocess.run([ffmpeg, "-y", "-v", "error", "-i", joined,
                     "-vf", f"ass={subs}:fontsdir={os.path.join(ROOT, 'assets', 'fonts')}",
                     "-c:v", "libx264", "-preset", args.preset, "-crf", str(args.crf),
                     "-tune", "animation", "-profile:v", "high", "-g", str(args.fps * 2),
-                    "-pix_fmt", "yuv420p",
-                    "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
+                    "-pix_fmt", "yuv420p", "-threads", "2",
+                    "-x264-params", "rc-lookahead=15:sync-lookahead=0", burnt], check=True)
+
+    os.makedirs(VIDEO, exist_ok=True)
+    master = os.path.join(OUT, args.name + ".mp4")
+    subprocess.run([ffmpeg, "-y", "-v", "error", "-i", burnt,
+                    "-i", os.path.join(OUT, "mix.wav"),
+                    "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
                     "-af", "loudnorm=I=-14:TP=-1.2:LRA=9",
                     "-shortest", "-movflags", "+faststart", master], check=True)
     final = master if args.test else os.path.join(VIDEO, os.path.basename(master))
@@ -142,7 +151,7 @@ def main():
                 os.remove(p)
             except OSError:
                 pass
-        for tmp in ("parts.txt",):
+        for tmp in ("parts.txt", "joined.mp4", "burnt.mp4"):
             try:
                 os.remove(os.path.join(OUT, tmp))
             except OSError:

@@ -478,15 +478,27 @@ def smoke_plume(origin, t, height=26.0, width=4.0, color=(0.86, 0.86, 0.88), puf
 
 
 def fire_glow(origin, t, scale=1.0, seed=0):
-    rng = np.random.default_rng(seed + int(t * 8))
+    """Flame tongues that flicker continuously (no per-frame reseeding).
+
+    The old version reseeded its RNG eight times a second, which made the flame jump
+    between unrelated shapes — one of the visible sources of stutter."""
+    rng = np.random.default_rng(seed)
+    ids = [(rng.random(), rng.normal(0.0, 0.22), rng.normal(0.0, 0.22), rng.random())
+           for _ in range(3)]
     o = np.asarray(origin, float)
     out = []
-    for i in range(3):
-        hh = (2.2 + 1.4 * rng.random()) * scale
-        out.append(prism([o[0] + rng.normal(0, 0.3), o[1] + hh * 0.5, o[2] + rng.normal(0, 0.3)],
-                         (0.9 + 0.3 * rng.random()) * scale, hh, 4,
+    for i, (rr, ox, oz, rs) in enumerate(ids):
+        sp = 1.6 + 0.9 * rs
+        ph = t * sp + i * 2.1
+        hh = (2.2 + 1.4 * rr + 0.45 * np.sin(ph) + 0.2 * np.sin(ph * 2.7 + ox)) * scale
+        wx = 0.9 + 0.3 * rr + 0.12 * np.cos(ph * 1.3)
+        out.append(prism([o[0] + ox * scale + 0.18 * np.sin(ph * 1.7) * scale,
+                          o[1] + hh * 0.5,
+                          o[2] + oz * scale + 0.18 * np.cos(ph * 1.9) * scale],
+                         wx * scale, hh, 4,
                          np.array([1.0, 0.62, 0.18]), taper=0.05, glow=1.0))
-    out.append(icosphere([o[0], o[1] + 1.1 * scale, o[2]], 2.1 * scale,
+    flare = 1.0 + 0.10 * np.sin(t * 7.3) + 0.06 * np.sin(t * 13.1 + 1.2)
+    out.append(icosphere([o[0], o[1] + 1.1 * scale, o[2]], 2.1 * scale * flare,
                          np.array([1.0, 0.55, 0.16]), glow=1.0, alpha=0.42))
     return out
 

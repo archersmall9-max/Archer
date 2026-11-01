@@ -33,7 +33,7 @@ LEAD_IN = 1.7
 SCENE_GAP = 0.40
 TAIL = 2.4
 DISSOLVE = 0.55
-FPS = 60
+FPS = 90
 
 
 @dataclass

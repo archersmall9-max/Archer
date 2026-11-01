@@ -143,16 +143,35 @@ def smart_aim(world, center, radius, az, el, dist, fov=50, t=0.0, shake_amp=0.09
 
 
 
+def sample_path(pts, f):
+    """Continuous position on the path at fractional index f (no stepping)."""
+    n = len(pts)
+    f = float(max(1.0, min(n - 2.0, f)))
+    i = int(np.floor(f))
+    fr = f - i
+    return pts[i] * (1.0 - fr) + pts[i + 1] * fr, i, fr
+
+
+def path_frame_f(pts, f, span=8):
+    """Continuous forward/right basis at fractional index f."""
+    a, i, fr = sample_path(pts, f)
+    f0, r0 = path_frame(pts, i, span)
+    f1, r1 = path_frame(pts, i + 1, span)
+    return a, normalize(f0 * (1.0 - fr) + f1 * fr), normalize(r0 * (1.0 - fr) + r1 * fr)
+
+
 def wall_shot(world, pts, i, lat, up, ahead, side=1, fov=50, t=0.0, shake_amp=0.08,
               look_up=6.0, back=0.0):
-    """Camera offset to the side of the wall, above the walkway, looking along it."""
-    i = int(max(2, min(len(pts) - 2, i)))
-    a = np.asarray(pts[i], float)
-    fwd, right = path_frame(pts, i)
+    """Camera offset to the side of the wall, above the walkway, looking along it.
+
+    `i` is a *fractional* path index: position, heading and aim target are all
+    interpolated, so a dolly move is frame-to-frame continuous instead of snapping
+    from one path sample to the next (that snapping read as a stutter)."""
+    a, fwd, right = path_frame_f(pts, i)
     eye = a + right * (side * lat) + np.array([0, world.wall_h + up, 0]) - fwd * back
     eye[1] = max(eye[1], world.height_at(eye[0], eye[2]) + 6.0)
-    j = int(max(1, min(len(pts) - 1, i + ahead / 4.4)))
-    tgt = np.asarray(pts[j], float) + np.array([0, look_up, 0])
+    ta, _, _ = sample_path(pts, i + ahead / 4.4)
+    tgt = ta + np.array([0, look_up, 0])
     return Camera(eye + shake(t, shake_amp), tgt, fov=fov, w=W_IMG, h=H_IMG, near=0.4)
 
 
@@ -283,9 +302,9 @@ class HeroShot(Shot):
     def frame(self, t):
         u = ease_io(self.u(t))
         p = self.pts
-        i = int(len(p) * (0.30 + 0.14 * u))
-        c0 = p[i] + np.array([0, 6, 0])
-        fwd, right = path_frame(p, i)
+        i = len(p) * (0.30 + 0.14 * u)
+        c0, fwd, right = path_frame_f(p, i)
+        c0 = c0 + np.array([0, 6, 0])
         az = float(np.arctan2(right[2], right[0])) + 0.28
         c = wall_shot(self.world, p, i, lat=40 - 9 * u, up=17 - 4 * u,
                       ahead=115 - 20 * u, fov=54, t=t, shake_amp=0.07, look_up=22)
@@ -345,7 +364,7 @@ class OrbitShot(Shot):
         p = self.pts
         c0 = p[len(p) // 2]
         az = 0.6 + 0.5 * u
-        c = wall_shot(self.world, p, int(len(p) * (0.34 + 0.1 * u)), lat=170, up=190,
+        c = wall_shot(self.world, p, len(p) * (0.34 + 0.10 * u), lat=170, up=190,
                       ahead=520, fov=40, t=t, shake_amp=0.04, look_up=-10)
         lk = look_day()
         lk.light.fog_density = 0.0013
@@ -370,9 +389,9 @@ class CamoShot(Shot):
     def frame(self, t):
         u = ease_io(self.u(t))
         p = self.world.path_points(4.4)
-        i = int(len(p) * (0.40 + 0.20 * u))
-        c0 = p[i] + np.array([0, 4, 0])
-        fwd, right = path_frame(p, i)
+        i = len(p) * (0.40 + 0.20 * u)
+        c0, fwd, right = path_frame_f(p, i)
+        c0 = c0 + np.array([0, 4, 0])
         az = float(np.arctan2(fwd[2], fwd[0])) + 0.9
         c = wall_shot(self.world, p, i, lat=48, up=40, ahead=130, fov=38, t=t,
                       shake_amp=0.06, look_up=2)
@@ -402,7 +421,7 @@ class WorkerShot(Shot):
         fwd, right = path_frame(p, i0)
         c0 = a + right * 4 + np.array([0, self.world.wall_h * 0.9, 0])
         az = float(np.arctan2(right[2], right[0])) - 0.35
-        c = wall_shot(self.world, p, i0 - 1 + int(8 * u), lat=6.5, up=4.5 + 1.0 * u,
+        c = wall_shot(self.world, p, i0 - 1 + 8.0 * u, lat=6.5, up=4.5 + 1.0 * u,
                       ahead=15, fov=50, t=t, shake_amp=0.12, look_up=11.4)
         meshes = list(self.world.static)
         walk_top = self.world.wall_h
@@ -766,7 +785,7 @@ class BeaconDayShot(Shot):
         a = p[i0] + np.array([0, 6, 0])
         fwd, right = path_frame(p, i0)
         az = float(np.arctan2(right[2], right[0])) + 0.35 + 0.4 * u
-        c = wall_shot(self.world, p, i0 + int(6 * u), lat=52, up=34, ahead=150,
+        c = wall_shot(self.world, p, i0 + 6.0 * u, lat=52, up=34, ahead=150,
                       fov=46, t=t, shake_amp=0.06, look_up=16)
         meshes = list(self.world.static)
         top = self.world.wall_h + 13.4
@@ -795,7 +814,7 @@ class BeaconNightShot(Shot):
         a = p[i0] + np.array([0, 6, 0])
         fwd, right = path_frame(p, i0)
         az = float(np.arctan2(right[2], right[0])) + 0.55 + 0.3 * u
-        c = wall_shot(self.world, p, i0 + 14 + int(8 * u), lat=16, up=9, ahead=34,
+        c = wall_shot(self.world, p, i0 + 14 + 8.0 * u, lat=16, up=9, ahead=34,
                       fov=50, t=t, shake_amp=0.08, look_up=17)
         meshes = list(self.world.static)
         top = self.world.wall_h + 13.4

@@ -1,6 +1,6 @@
 # Rahasia di Balik Tembok Besar China — animasi 3D vertikal
 
-Video pendek (**2:47, 1080×1920, 60 fps**) bergaya *history short* Indonesia: narasi bahasa
+Video pendek (**2:47, 1080×1920, 90 fps**) bergaya *history short* Indonesia: narasi bahasa
 Indonesia, dunia 3D low-poly yang **dirender penuh** (bukan slideshow gambar), kamera
 sinematik yang bergerak, karakter berjalan, kavaleri, asap api beacon, kabut, siang →
 senja → malam, caption per-kata, dan skor musik prosedural.
@@ -13,10 +13,10 @@ dibuat dari nol secara prosedural — tidak ada footage atau gambar pihak ketiga
 
 | Berkas | Keterangan |
 | --- | --- |
-| `video/rahasia_tembok_besar_china_1080x1920.mp4` | video final **2:47.25 · 10.035 frame** — 1080×1920, **60 fps**, H.264 High ~3.0 Mbps + AAC 192 kbps 48 kHz, 67,7 MB, caption terbakar, −14,4 LUFS |
+| `video/rahasia_tembok_besar_china_1080x1920.mp4` | video final **2:47.24 · 15.052 frame** — 1080×1920, **90 fps**, H.264 High 3,05 Mbps + AAC 192 kbps 48 kHz, 68,1 MB, caption terbakar, −14,4 LUFS |
 | `video/poster.jpg` | poster/thumbnail 1080×1920 |
 | `video/captions.subs.ass` | caption per-kata (libass) untuk versi lain |
-| `ref/qc_new.jpg`, `ref/final_sheet.jpg` | QC frame terpilih dari master 60 fps + contact sheet versi lama |
+| `ref/qc90.jpg` | QC frame terpilih dari master 90 fps |
 
 ## Cara kerja pipeline
 
@@ -42,6 +42,9 @@ src/engine3d.py    renderer software: proyeksi perspektif, backface cull, cull s
                    emissive, transparansi, langit prosedural + bintang
         │
         ▼
+src/shadow.py      bayangan matahari (shadow map orthografis) dipanggang sekali per shot
+        │
+        ▼
 src/gfx.py         finishing OpenCV: resolve supersample INTER_AREA, bloom 2 skala +
                    halation, LUT filmic (rolloff highlight, mid-grey tetap), clarity,
                    micro-sharpen, vignette, dither + grain
@@ -65,9 +68,9 @@ src/make.py        render paralel per rentang frame → concat → mux AAC + lou
 | `imageio-ffmpeg` | 0.7.0 | FFmpeg 7.0.2 portabel (libass + libx264) |
 
 Tidak ada GPU, WebGL, Blender, atau pustaka 3D pihak ketiga: renderer 3D-nya ditulis
-sendiri dan berjalan **~3.0 frame/detik per proses** di 1080×1920 dengan supersampling
-1.5×. `make.py` membagi frame ke semua core, jadi master penuh (10.035 frame) selesai
-**±32 menit** di 2 core (render 27,7 menit + encode final 4 menit).
+sendiri dan berjalan **~3.1 frame/detik per proses** di 1080×1920 dengan supersampling
+1.6×. `make.py` membagi frame ke semua core, jadi master penuh (15.052 frame) selesai
+**±45 menit** di 2 core (render paralel 39,9 menit + burn caption 5 menit + mux).
 
 ## Menjalankan ulang
 
@@ -103,9 +106,19 @@ Flag tuning: `--ss` (supersampling, default 1.5), `--crf` (default 17), `--prese
 
 ## Catatan produksi
 
-* **60 fps**: timeline dihitung per frame (`frame = round(t × 60)`), animasi berbasis waktu,
-  jadi kamera dan aktor tetap sinkron di semua fps. `make.py` memotong tepat di batas frame
-  sehingga concat tidak bergeser satu frame pun.
+* **90 fps**: timeline dihitung per frame, animasi berbasis waktu, jadi kamera dan aktor
+  tetap sinkron di semua fps. `make.py` memotong tepat di batas frame sehingga concat tidak
+  bergeser satu frame pun.
+* **Gerak mulus (anti-patah-patah)**: semua indeks path yang dulu dibulatkan `int()`
+  sekarang fraksional (`sample_path`/`path_frame_f`), sehingga dolly kamera di atas tembok
+  bergerak kontinu, bukan melompat tiap 4,4 unit. Api beacon tidak lagi me-reseed RNG 8×/
+  detik (`fire_glow` sekarang berosilasi kontinu), dan tiap frame memakai *shutter trail*
+  0,35 dengan frame sebelumnya — gerak cepat terbaca sebagai blur, bukan deretan still.
+* **Bayangan matahari asli**: `shadow.py` memanggang peta bayangan orthografis sekali per
+  shot (matahari konstan dalam satu shot) lalu mengalikannya **hanya pada komponen cahaya
+  langsung** — jadi area terbayang tetap dapat cahaya langit biru, bukan sekadar menggelap.
+* **Specular + rim light**: respons permukaan tipis di shader per-face supaya batu dan atap
+  tidak terlihat seperti karton.
 * **Anti-aliasing nyata**: frame dirender 1.5× (1620×2880) lalu di-resolve dengan
   `INTER_AREA`, bukan di-blur setelahnya. Face yang lebih kecil dari satu piksel dibuang
   sebelum rasterisasi.
