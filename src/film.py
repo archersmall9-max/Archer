@@ -33,7 +33,7 @@ LEAD_IN = 1.7
 SCENE_GAP = 0.40
 TAIL = 2.4
 DISSOLVE = 0.55
-FPS = 30
+FPS = 60
 
 
 @dataclass
@@ -118,7 +118,7 @@ def _env(x, sr):
     return np.convolve(e, ker, mode="same")
 
 
-def build_audio(tl: Timeline, ffmpeg_bin, vo_dir, out_wav, music_gain=0.16):
+def build_audio(tl: Timeline, ffmpeg_bin, vo_dir, out_wav, music_gain=0.205):
     n = int(tl.total * SR) + SR
     vo_bus = np.zeros(n, dtype=np.float32)
     for seg in tl.segments:
@@ -267,6 +267,37 @@ def score(total, sr=SR):
 
 # ------------------------------------------------------------------ captions
 WORD_PER_CUE = 3
+BASE_FS = 88          # caption size that always fits three Anton words
+FIT_W = 930           # usable width inside the 1080 frame
+ACCENT = "&H0032D9FF"  # ASS &HAABBGGRR -> warm yellow, same as the reference
+WHITE = "&H00FFFFFF"
+
+_FONT = {}
+
+
+def _font(size):
+    f = _FONT.get(size)
+    if f is None:
+        import os
+        from PIL import ImageFont
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
+                            "assets", "fonts", "Anton-Regular.ttf")
+        f = ImageFont.truetype(path, size)
+        _FONT[size] = f
+    return f
+
+
+def _fit_size(text, base=BASE_FS, width=FIT_W):
+    """Shrink the caption just enough that the widest line stays inside the frame."""
+    try:
+        fs = base
+        for _ in range(24):
+            if _font(fs).getlength(text) <= width or fs <= 46:
+                return fs
+            fs -= 2
+        return fs
+    except Exception:
+        return base
 
 
 def _chunks(text, size=WORD_PER_CUE):
@@ -275,6 +306,28 @@ def _chunks(text, size=WORD_PER_CUE):
     for i in range(0, len(words), size):
         out.append(words[i:i + size])
     return out
+
+
+def _reveal(words, j, fs):
+    """Words 0..j, newest popping in accent-coloured; the rest stay as invisible
+    placeholders so the line never re-centres while it types on."""
+    parts = []
+    for k, w in enumerate(words[: j + 1]):
+        w = w.upper()
+        if k == j:
+            parts.append(f"{{\\c{ACCENT}\\fscx114\\fscy114"
+                         f"\\t(0,80,\\fscx100\\fscy100)}}{w}")
+        else:
+            parts.append(f"{{\\c{WHITE}}}{w}")
+    txt = " ".join(parts)
+    rest = [w.upper() for w in words[j + 1:]]
+    if rest:
+        txt += " {\\alpha&HFF&}" + " ".join(rest)
+    return f"{{\\fs{fs}\\fad(40,70)}}" + txt
+
+
+def _measure(words):
+    return " ".join(w.upper() for w in words)
 
 
 def ass_time_to_s(t):
@@ -299,10 +352,10 @@ YCbCr Matrix: TV.709
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Cap,Anton,86,&H0032D9FF,&H00FFFFFF,&H00000000,&H80000000,0,0,0,0,100,100,1,0,1,7,3,2,70,70,300,1
-Style: Kicker,Anton,44,&H0040E0FF,&H00FFFFFF,&H00000000,&H80000000,0,0,0,0,100,100,3,0,1,4,2,8,60,60,130,1
-Style: Title,Anton,132,&H00FFFFFF,&H00FFFFFF,&H00000000,&H90000000,0,0,0,0,100,100,2,0,1,9,4,5,60,60,0,1
-Style: Sub,Anton,54,&H00D9E6FF,&H00FFFFFF,&H00000000,&H80000000,0,0,0,0,100,100,2,0,1,4,2,2,60,60,300,1
+Style: Cap,Anton,88,&H0032D9FF,&H00FFFFFF,&H00141010,&H90000000,0,0,0,0,100,100,1,0,1,8,4,2,70,70,300,1
+Style: Kicker,Anton,44,&H0040E0FF,&H00FFFFFF,&H00141010,&H90000000,0,0,0,0,100,100,3,0,1,5,3,8,60,60,140,1
+Style: Title,Anton,132,&H00FFFFFF,&H00FFFFFF,&H00141010,&H90000000,0,0,0,0,100,100,2,0,1,10,5,5,60,60,0,1
+Style: Sub,Anton,54,&H00D9E6FF,&H00FFFFFF,&H00141010,&H90000000,0,0,0,0,100,100,2,0,1,5,3,2,60,60,300,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -310,20 +363,22 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
 
 def write_ass(tl: Timeline, path, clip=None, shift=0.0):
+    """Burned captions: kicker per scene, word-by-word reveal, title + end card."""
     lines = [ASS_HEADER]
     t0, t1 = (clip if clip else (0.0, 1e9))
 
-    # opening title
-    lines.append(f"Dialogue: 1,{ass_time(0.35)},{ass_time(3.6)},Title,,0,0,0,,"
-                 "{\\fad(320,420)\\fscx88\\fscy88\\t(0,420,\\fscx100\\fscy100)}"
+    lines.append(f"Dialogue: 1,{ass_time(0.30)},{ass_time(3.85)},Title,,0,0,0,,"
+                 "{\\fad(340,420)\\fscx86\\fscy86\\blur1.2"
+                 "\\t(0,520,\\fscx100\\fscy100\\blur0)}"
                  "RAHASIA DI BALIK\\NTEMBOK BESAR CHINA")
-    # kickers + word cues
+
     for sc in tl.scenes:
         seg = next(s for s in tl.segments if s.scene == sc["id"] and s.vo_dur > 0)
         k0 = seg.vo_start - 0.35
         k1 = min(seg.vo_start + seg.vo_dur - 0.1, k0 + 4.6)
         lines.append(f"Dialogue: 0,{ass_time(k0)},{ass_time(k1)},Kicker,,0,0,0,,"
-                     "{\\fad(220,260)}" + sc["kicker"].upper())
+                     "{\\fad(240,260)\\fscx104\\fscy104"
+                     "\\t(0,240,\\fscx100\\fscy100)}" + sc["kicker"].upper())
 
         cues = _chunks(sc["narration"])
         weights = np.array([len(" ".join(c)) + 3 for c in cues], dtype=float)
@@ -333,27 +388,31 @@ def write_ass(tl: Timeline, path, clip=None, shift=0.0):
         cur = a0
         for cue, wgt in zip(cues, weights):
             d = span * wgt
-            txt = " ".join(cue).upper()
-            e0, e1 = cur, cur + d + 0.06
-            lines.append(
-                f"Dialogue: 2,{ass_time(e0)},{ass_time(e1)},Cap,,0,0,0,,"
-                "{\\fad(70,70)\\fscx94\\fscy94\\t(0,110,\\fscx100\\fscy100)}" + txt)
+            lw = np.array([len(w) + 1.6 for w in cue], dtype=float)
+            lw /= lw.sum()
+            fs = _fit_size(_measure(cue))
+            t = cur
+            for j in range(len(cue)):
+                t_end = cur + d * float(min(1.0, lw[: j + 1].sum()))
+                hold = 0.10 if j == len(cue) - 1 else 0.0
+                lines.append(f"Dialogue: 2,{ass_time(t)},{ass_time(t_end + hold)},Cap,,0,0,0,,"
+                             + _reveal(cue, j, fs))
+                t = t_end
             cur += d
 
-    # call to action
     t_end = tl.total
-    lines.append(f"Dialogue: 2,{ass_time(t_end - 2.1)},{ass_time(t_end)},Cap,,0,0,0,,"
-                 "{\\fad(180,300)}IKUTI UNTUK BAGIAN BERIKUTNYA")
+    lines.append(f"Dialogue: 2,{ass_time(t_end - 2.15)},{ass_time(t_end - 0.05)},Cap,,0,0,0,,"
+                 "{\\fad(180,300)\\fs74}IKUTI UNTUK BAGIAN BERIKUTNYA")
 
     if clip is not None:
         kept = [lines[0]]
         for ln in lines[1:]:
-            parts = ln.split(",")
-            a, b = ass_time_to_s(parts[1]), ass_time_to_s(parts[2])
+            head = ln.split(",", 9)          # keep the text field (may contain commas) intact
+            a, b = ass_time_to_s(head[1]), ass_time_to_s(head[2])
             if b <= t0 or a >= t1:
                 continue
             a2, b2 = max(a, t0) - shift, min(b, t1) - shift
-            kept.append(",".join([parts[0], parts[1] and ass_time(a2), ass_time(b2)] + parts[3:]))
+            kept.append(",".join([head[0], ass_time(a2), ass_time(b2)] + head[3:]))
         lines = kept
     open(path, "w", encoding="utf-8").write("\n".join(lines) + "\n")
     return path

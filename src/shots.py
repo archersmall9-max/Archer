@@ -40,7 +40,7 @@ def look_golden():
                 sky_top=(0.12, 0.26, 0.58), sky_bot=(1.0, 0.76, 0.56),
                 fog=(0.92, 0.78, 0.68), fog_d=0.0011, exposure=1.02, sky_glow=1.0,
                 sky_size=0.09, post=dict(bloom=0.40, vignette=0.36, grain=2.0,
-                                         saturation=1.18, contrast=1.06,
+                                         saturation=1.18, contrast=1.06, filmic=0.50,
                                          gain=(1.05, 1.0, 0.93)))
 
 
@@ -49,7 +49,7 @@ def look_day():
                 sky_top=(0.18, 0.42, 0.80), sky_bot=(0.80, 0.89, 0.98),
                 fog=(0.80, 0.87, 0.96), fog_d=0.0012, exposure=1.0, sky_glow=0.45,
                 sky_size=0.05, post=dict(bloom=0.26, vignette=0.28, grain=1.8,
-                                         saturation=1.10, contrast=1.05))
+                                         saturation=1.10, contrast=1.05, filmic=0.42))
 
 
 def look_dusk():
@@ -57,7 +57,7 @@ def look_dusk():
                 sky_top=(0.07, 0.12, 0.28), sky_bot=(0.62, 0.40, 0.38),
                 fog=(0.30, 0.32, 0.44), fog_d=0.0022, exposure=1.05, sky_glow=0.5,
                 sky_size=0.05, post=dict(bloom=0.40, vignette=0.45, grain=2.6,
-                                         saturation=1.02, contrast=1.08,
+                                         saturation=1.02, contrast=1.08, filmic=0.35,
                                          gain=(1.02, 1.0, 1.03)))
 
 
@@ -67,7 +67,8 @@ def look_night():
                 fog=(0.09, 0.12, 0.22), fog_d=0.0022, exposure=1.10, sky_glow=0.35,
                 sky_size=0.05, stars=1.0,
                 post=dict(bloom=0.55, vignette=0.50, grain=3.0, saturation=1.05,
-                          contrast=1.10, gain=(0.97, 0.99, 1.06)))
+                          contrast=1.08, filmic=0.18, shadows=0.09,
+                          gain=(0.97, 0.99, 1.06)))
 
 
 def look_blue():
@@ -76,7 +77,8 @@ def look_blue():
                 fog=(0.26, 0.34, 0.48), fog_d=0.0016, exposure=1.15, sky_glow=0.5,
                 sky_size=0.045, stars=0.8,
                 post=dict(bloom=0.45, vignette=0.46, grain=2.6, saturation=1.06,
-                          contrast=1.08, gain=(0.96, 1.0, 1.08)))
+                          contrast=1.08, filmic=0.22, shadows=0.08,
+                          gain=(0.96, 1.0, 1.08)))
 
 
 def look_macro():
@@ -84,7 +86,7 @@ def look_macro():
                 sky_top=(0.30, 0.42, 0.62), sky_bot=(0.92, 0.84, 0.74),
                 fog=(0.70, 0.68, 0.66), fog_d=0.0030, exposure=1.05, sky_glow=0.5,
                 post=dict(bloom=0.34, vignette=0.40, grain=2.2, saturation=1.10,
-                          contrast=1.08, gain=(1.02, 1.0, 0.97)))
+                          contrast=1.08, filmic=0.45, gain=(1.02, 1.0, 0.97)))
 
 
 # ------------------------------------------------------------------ camera

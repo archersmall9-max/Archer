@@ -10,8 +10,11 @@ Faces are wound counter-clockwise when seen from outside.
 """
 from __future__ import annotations
 
+import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
+
+import gfx
 
 D2R = np.pi / 180.0
 
@@ -289,42 +292,52 @@ class Renderer:
 
     # -- sky ------------------------------------------------------------------
     def sky_image(self, cam, light, top=(0.24, 0.46, 0.78), bottom=(0.86, 0.90, 0.95),
-                  sun_glow=0.55, sun_size=0.06, stars=0.0, seed=0):
+                  sun_glow=0.55, sun_size=0.06, stars=0.0, seed=0, time=0.0):
+        """Procedural sky. Evaluated at ~1/4 resolution and cubic-upscaled: the sky is a
+        smooth gradient, so this is visually identical to per-pixel maths but ~8x cheaper.
+        The star field is a cached, deterministic layer (stable frame to frame)."""
         w, h = self.w, self.h
-        y = np.linspace(0, 1, h)[:, None]
-        grad = (1 - y) ** 1.35
-        top = np.asarray(top, float)
-        bottom = np.asarray(bottom, float)
-        img = bottom[None, None, :] * (1 - grad)[:, :, None] + top[None, None, :] * grad[:, :, None]
-        img = np.repeat(img, w, axis=1)
-        # sun glow
+        ss = max(2, int(round(w / 400.0)))
+        sw, sh = max(64, w // ss), max(64, h // ss)
+        y = np.linspace(0.0, 1.0, sh, dtype=np.float32)[:, None]
+        grad = (1.0 - y) ** 1.35
+        top = np.asarray(top, np.float32)
+        bottom = np.asarray(bottom, np.float32)
+        col = bottom[None, None, :] * (1.0 - grad)[:, :, None] + top[None, None, :] * grad[:, :, None]
+        img = np.repeat(col, sw, axis=1)
+
         sd = light.sun.d
-        p = normalize(np.array([sd[0], sd[1], sd[2]]))
-        # project sun direction into the camera to place the glow
-        pc = cam.R @ p
+        pc = cam.R @ normalize(np.array([sd[0], sd[1], sd[2]]))
+        sun_c = np.asarray(light.sun.c, np.float32)
         if pc[2] > 0.05:
-            sx = int(w / 2 + cam.focal * (pc[0] / pc[2]) * self.ssaa)
-            sy = int(h / 2 - cam.focal * (pc[1] / pc[2]) * self.ssaa)
-            if -w < sx < 2 * w and -h < sy < 2 * h:
-                yy, xx = np.mgrid[0:h, 0:w]
-                r = np.sqrt((xx - sx) ** 2 + (yy - sy) ** 2) / (h * sun_size)
-                glow = np.clip(np.exp(-r ** 1.7) * sun_glow, 0, 4)
-                core = np.clip(np.exp(-(r * 3.2) ** 2) * 1.8, 0, 4)
-                img = img + (glow + core)[:, :, None] * np.asarray(light.sun.c, float)[None, None, :] * 1.4
+            sx = sw / 2.0 + cam.focal * (pc[0] / pc[2]) * self.ssaa / ss
+            sy = sh / 2.0 - cam.focal * (pc[1] / pc[2]) * self.ssaa / ss
+            rr = (h / ss) * max(sun_size, 1e-3)
+            if -2.5 * rr < sx < sw + 2.5 * rr and -2.5 * rr < sy < sh + 2.5 * rr:
+                yy, xx = np.mgrid[0:sh, 0:sw].astype(np.float32)
+                d = np.sqrt((xx - sx) ** 2 + (yy - sy) ** 2) / rr
+                glow = np.clip(np.exp(-d ** 1.9) * sun_glow, 0, 4)
+                halo = np.clip(np.exp(-(d * 0.45) ** 2) * 0.20 * sun_glow, 0, 4)
+                core = np.clip(np.exp(-(d * 3.4) ** 2) * 1.9, 0, 4)
+                img = img + (glow + halo + core)[:, :, None] * sun_c[None, None, :] * 1.35
+                # warm haze band hugging the horizon, strongest on the sun side
+                hz = np.clip(1.0 - np.abs(y[:, 0] - 0.66) / 0.44, 0, 1) ** 2.2
+                side = np.clip(1.0 - np.abs(np.linspace(0.0, 1.0, sw, dtype=np.float32) - sx / sw) / 1.15, 0, 1)
+                img = img + (hz[:, None] * side[None, :])[:, :, None] * sun_c[None, None, :] * 0.07
+
+        img8 = np.clip(img * 255.0, 0, 255).astype(np.uint8)
+        img8 = cv2.resize(img8, (w, h), interpolation=cv2.INTER_CUBIC)
         if stars > 0:
-            rng = np.random.default_rng(seed + 7)
-            n = int(w * h / 5200)
-            ys = rng.integers(0, int(h * 0.62), n)
-            xs = rng.integers(0, w, n)
-            br = rng.uniform(0.25, 1.0, n) * stars
-            for x, y_, b in zip(xs, ys, br):
-                img[y_, x] = img[y_, x] + b
-                if x + 1 < w:
-                    img[y_, x + 1] = img[y_, x + 1] + b * 0.35
-        return Image.fromarray(np.clip(img * 255, 0, 255).astype(np.uint8), "RGB")
+            layer = _star_layer(w, h, seed)
+            if stars >= 0.999:
+                img8 = cv2.add(img8, layer)
+            else:
+                img8 = cv2.addWeighted(img8, 1.0, layer, stars, 0.0)
+        return Image.fromarray(img8, "RGB")
 
     # -- geometry -------------------------------------------------------------
-    def render(self, meshes, cam, light, background=None, max_faces=None):
+    def render(self, meshes, cam, light, background=None, max_faces=None,
+               ao=0.0, ao_radius=5.0, min_area=0.6):
         w, h = self.w, self.h
         meshes = [m for m in meshes if m is not None and len(m.f)]
         if not meshes:
@@ -391,6 +404,17 @@ class Renderer:
         ft = np.clip(ft, 0, 0.965)[:, None]
         shade = shade * (1 - ft) + light.fog[None, :] * ft
 
+        # cheap contact occlusion: denser neighbourhoods get darker (crevices, joints,
+        # where a body meets the ground).  cKDTree over face centroids, O(n log n).
+        if ao > 0:
+            from scipy.spatial import cKDTree
+            vc = np.clip(F[:, :3], 0, len(V) - 1)
+            cen = V[vc[:, 0]] * 0.34 + V[vc[:, 1]] * 0.33 + V[vc[:, 2]] * 0.33
+            pairs = cKDTree(cen).query_pairs(ao_radius, output_type="ndarray")
+            cnt = np.bincount(pairs.ravel(), minlength=len(cen)).astype(np.float32)
+            occ = np.clip(1.0 - ao * (cnt / (cnt + 9.0)), 0.30, 1.0)
+            shade = shade * occ[:, None]
+
         # project -------------------------------------------------------------
         z = np.where(zs > cam.near, zs, cam.near)
         sx = w / 2 + cam.focal * (Q[:, :, 0] / z) * self.ssaa
@@ -413,6 +437,17 @@ class Renderer:
                 else:
                     polys[fi] = None
             idx = idx[[polys.get(fi, 1) is not None for fi in idx]]
+
+        # drop faces that cannot cover a pixel at this supersampling level: each one
+        # would still cost a draw call, and they are invisible.
+        if min_area > 0:
+            m3 = F >= 0
+            x0 = np.where(m3, sx, np.inf).min(1)
+            x1 = np.where(m3, sx, -np.inf).max(1)
+            y0 = np.where(m3, sy, np.inf).min(1)
+            y1 = np.where(m3, sy, -np.inf).max(1)
+            area = np.maximum(x1 - x0, 0) * np.maximum(y1 - y0, 0)
+            idx = idx[area[idx] >= min_area]
 
         order = idx[np.argsort(-depth[idx])]
         cols = np.clip(shade * 255, 0, 255).astype(np.uint8)
@@ -458,6 +493,29 @@ def _clip_near(poly, near):
     return out
 
 
+# ----------------------------------------------------------------------------- sky bits
+_STARS = {}
+
+
+def _star_layer(w, h, seed):
+    """Cached deterministic star field: sparse points + a soft bloom around them."""
+    key = (w, h, seed)
+    lyr = _STARS.get(key)
+    if lyr is None:
+        rng = np.random.default_rng(seed + 91)
+        n = int(w * h / 9000)
+        yy = (rng.random(n) ** 1.55 * h * 0.74).astype(np.int32)
+        xx = rng.integers(0, w, n).astype(np.int32)
+        br = (rng.random(n) ** 2.1 * 200 + 25).astype(np.int32)
+        lyr = np.zeros((h, w, 3), np.uint8)
+        for x, y_, b in zip(xx, yy, br):
+            lyr[y_, x] = max(int(lyr[y_, x, 0]), int(b))
+        glow = cv2.GaussianBlur(lyr, (0, 0), max(1.0, w / 640.0))
+        lyr = cv2.addWeighted(lyr, 1.0, glow, 0.85, 0)
+        _STARS[key] = lyr
+    return lyr
+
+
 # ----------------------------------------------------------------------------- post
 _VIG_CACHE = {}
 _GRAIN_BANK = {}
@@ -486,40 +544,9 @@ def _grain(h, w, n=8):
 
 
 def post(img, bloom=0.35, vignette=0.35, grain=3.0, saturation=1.06, contrast=1.05,
-         lift=(0.0, 0.0, 0.0), gain=(1.0, 1.0, 1.0), seed=0, blur_bg=0.0):
-    w, h = img.size
-    a = np.asarray(img, dtype=np.float32)
-    a *= (1.0 / 255.0)
-
-    if bloom > 0:
-        sw, sh = max(8, w // 8), max(8, h // 8)
-        small = img.resize((sw, sh), Image.BILINEAR)
-        arr = np.asarray(small, dtype=np.float32) * (1.0 / 255.0)
-        bright = np.clip((arr - 0.72) * 3.57, 0, 1)
-        bimg = Image.fromarray((bright * 255).astype(np.uint8)).filter(
-            ImageFilter.GaussianBlur(radius=3.2)).resize((w, h), Image.BILINEAR)
-        b = np.asarray(bimg, dtype=np.float32) * (1.0 / 255.0)
-        a += b * bloom
-
-    if contrast != 1.0:
-        a -= 0.5
-        a *= contrast
-        a += 0.5
-    if saturation != 1.0:
-        lum = a @ np.array([0.299, 0.587, 0.114], dtype=np.float32)
-        a += (a - lum[..., None]) * (saturation - 1.0)
-    if gain != (1.0, 1.0, 1.0):
-        a *= np.asarray(gain, np.float32)[None, None, :]
-    if lift != (0.0, 0.0, 0.0):
-        a += np.asarray(lift, np.float32)[None, None, :]
-
-    if vignette > 0:
-        a *= (1.0 - vignette * _vignette_mask(h, w))[:, :, None]
-
-    if grain > 0:
-        bank = _grain(h, w)
-        a += bank[seed % len(bank)][:, :, None] * (grain * (1.0 / 255.0))
-
-    np.clip(a, 0, 1, out=a)
-    a *= 255.0
-    return Image.fromarray(a.astype(np.uint8), "RGB")
+         lift=(0.0, 0.0, 0.0), gain=(1.0, 1.0, 1.0), seed=0, blur_bg=0.0, **kw):
+    """Thin wrapper kept for the look-dev tools; the real stack lives in gfx.grade()."""
+    return Image.fromarray(
+        gfx.grade(img, bloom=bloom, vignette=vignette, grain=grain, saturation=saturation,
+                  contrast=contrast, lift=lift, gain=gain, seed=seed, blur_bg=blur_bg, **kw),
+        "RGB")
