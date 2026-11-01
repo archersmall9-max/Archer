@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+google_drive/
+out/
+video/*.mp4
+video/*.wav

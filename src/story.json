@@ -1,0 +1,108 @@
+{
+  "title": "RAHASIA DI BALIK TEMBOK BESAR CHINA",
+  "language": "id",
+  "style_suffix": "stylized low-poly 3D render, mobile game art style, clean faceted geometry, large soft shadows, bright cinematic sunlight, vibrant saturated colors, subtle atmospheric haze, ultra detailed, no text, no watermark",
+  "scenes": [
+    {
+      "id": "01",
+      "kicker": "TEMBOK BESAR CHINA",
+      "narration": "Tembok Besar China. Dua puluh satu ribu kilometer membelah pegunungan. Tapi di balik kemegahannya, ada rahasia yang jarang diceritakan di buku sekolah. Dan sebagiannya… sengaja dilupakan.",
+      "shots": [
+        "epic aerial view of the Great Wall of China snaking across green rolling mountains at golden hour, chinese guard towers, winding stone path, dramatic clouds, wide cinematic vista",
+        "low camera angle looking up a steep ridge with a solid stone watchtower of the Great Wall, blue sky, birds, sun flare, sense of scale"
+      ],
+      "grade": "warm_sunrise"
+    },
+    {
+      "id": "02",
+      "kicker": "BUKAN SATU TEMBOK",
+      "narration": "Rahasia pertama: ini bukan satu tembok. Ini gabungan puluhan tembok yang dibangun lebih dari dua ribu tahun oleh banyak dinasti. Setiap kaisar menambah, memperbaiki, dan menutupi kelemahan pendahulunya.",
+      "shots": [
+        "isometric stylized 3D terrain map of northern china with several different ancient earthen and stone walls crossing the valleys, tiny villages, rivers, mountains, miniature diorama look",
+        "stylized 3d scene of ancient chinese workers with wooden scaffolding building a stone wall section on a hillside, dust, ropes, simple tools"
+      ],
+      "grade": "clean_day"
+    },
+    {
+      "id": "03",
+      "kicker": "MITOS DARI BULAN",
+      "narration": "Mitos terbesar? Katanya tembok ini terlihat dari bulan. Itu bohong. Bahkan dari orbit rendah, tembok ini nyaris tidak terlihat, karena warnanya menyatu dengan bebatuan di bawahnya.",
+      "shots": [
+        "stylized 3d render of planet earth from low orbit with thin blue atmosphere, china visible below, clouds, dramatic sunlight rim, deep space stars",
+        "extreme wide aerial realistic stylized 3d landscape where the Great Wall is almost invisible among rocky grey mountains, vast scale, tiny wall line"
+      ],
+      "grade": "space_cool"
+    },
+    {
+      "id": "04",
+      "kicker": "TENTARA, PETANI, TAHANAN",
+      "narration": "Yang membangunnya bukan sekadar budak. Ada tentara, petani, dan tahanan yang dikirim ribuan kilometer dari rumah. Mereka bekerja tanpa mesin: memotong batu dengan tangan, mengangkut di punggung, di ketinggian yang bikin kaki gemetar.",
+      "shots": [
+        "stylized 3d scene of exhausted ancient chinese laborers hauling heavy stone blocks up a steep mountain path, sweat, dust cloud, rope harness, harsh midday sun",
+        "close up of worn hands carving a stone block with a chisel and hammer, sparks of stone chips, shallow depth of field, stylized 3d render"
+      ],
+      "grade": "dust_warm"
+    },
+    {
+      "id": "05",
+      "kicker": "YANG TIDAK PULANG",
+      "narration": "Dan ribuan dari mereka tidak pernah pulang. Legenda bilang, tubuh para pekerja dimakamkan di dalam tembok. Sampai hari ini, cerita itu tetap hidup di sepanjang pegunungan ini.",
+      "shots": [
+        "moody stylized 3d render of the Great Wall at dusk with fog rolling over the ridges, faint small grave mounds and incense sticks along the wall, melancholy, muted palette",
+        "old weathered stone wall section with cracks and faded memorial ribbons, misty morning light, quiet and solemn, stylized 3d render"
+      ],
+      "grade": "dusk_moody"
+    },
+    {
+      "id": "06",
+      "kicker": "PEREKAT DARI KETAN",
+      "narration": "Rahasia paling aneh ada di perekatnya. Sebagian perekat tembok ini terbuat dari ketan. Ya, nasi ketan. Perekat beras ketan ini diyakini lebih tahan lama daripada semen modern. Sampai sekarang, ilmuwan masih mempelajarinya.",
+      "shots": [
+        "macro stylized 3d render of a grey brick wall joint with glossy sticky rice grains embedded in the mortar, warm rim light, steam, scientific look",
+        "cutaway cross section diagram of the Great Wall showing stone foundation, rammed earth core, brick facing and drainage layer, stylized 3d technical illustration, clean studio light"
+      ],
+      "grade": "macro_warm"
+    },
+    {
+      "id": "07",
+      "kicker": "KOTA MEMANJANG",
+      "narration": "Tapi tembok ini bukan cuma dinding. Di dalamnya ada menara pengawas, barak tentara, gudang senjata, bahkan gerbang pajak. Tembok ini adalah kota memanjang sepanjang ribuan kilometer.",
+      "shots": [
+        "stylized 3d interior of a great wall watchtower with stone spiral stairs, arrow slits casting light beams, spears and shields stacked, dust motes",
+        "great wall gatehouse with a merchant caravan of camels and carts passing through a huge wooden gate, guards checking cargo, sunny day, stylized 3d diorama"
+      ],
+      "grade": "clean_day"
+    },
+    {
+      "id": "08",
+      "kicker": "ASAP DAN API",
+      "narration": "Sistem komunikasinya luar biasa. Siang mereka memakai asap, malam memakai api. Dalam hitungan jam, pesan bisa melaju lebih dari lima ratus kilometer. Jauh sebelum ada telegram atau internet.",
+      "shots": [
+        "chain of great wall beacon towers across mountain ridges sending thick white smoke signals by day, stylized 3d render, wide epic landscape",
+        "night scene of great wall beacon towers with blazing orange fires along the ridges under a starry sky, long smoke, dramatic silhouette, stylized 3d render"
+      ],
+      "grade": "day_night_mix"
+    },
+    {
+      "id": "09",
+      "kicker": "PENGHALANG YANG BOCOR",
+      "narration": "Tapi tembok ini juga pernah ditembus. Bangsa Mongol melewatinya, dan Manchu berhasil masuk lewat gerbang yang dijaga pengkhianat. Tembok bukan pelindung ajaib. Ia hanya memperlambat.",
+      "shots": [
+        "stylized 3d scene of mongol horse archers in dust charging across grassland toward the Great Wall, banners, motion, harsh sun",
+        "massive wooden gate of the wall opening at night with torches, army silhouettes marching in, smoke, betrayed guards, dramatic stylized 3d render"
+      ],
+      "grade": "battle_cool"
+    },
+    {
+      "id": "10",
+      "kicker": "YANG HILANG",
+      "narration": "Dan hari ini, sepertiga Tembok Besar sudah hilang. Dimakan cuaca, ditelan hutan, dan diambil warga untuk bahan bangunan rumah mereka. Jadi kalau kamu ditanya apa rahasia terbesar tembok ini, jawabannya bukan batu. Tapi jutaan tangan yang tidak pernah tercatat namanya.",
+      "shots": [
+        "crumbling overgrown section of the Great Wall overtaken by trees and moss, broken bricks scattered, misty morning, stylized 3d render, melancholic",
+        "quiet village at the foot of the wall where a farmer stacks old wall bricks beside a simple stone house, late afternoon light, stylized 3d render",
+        "heroic final shot of the Great Wall under a starry blue hour sky with fog in the valleys, tiny warm lights on the towers, cinematic and mysterious, stylized 3d render"
+      ],
+      "grade": "blue_hour"
+    }
+  ]
+}
